@@ -49,6 +49,7 @@ joined as (
         products.product_price,
         products.is_food_item,
         products.is_drink_item,
+         products.product_price * 0.1 AS product_new_price,
 
         order_supplies_summary.supply_cost
 
