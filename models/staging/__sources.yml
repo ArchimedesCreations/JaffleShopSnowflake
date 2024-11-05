@@ -11,11 +11,15 @@ sources:
     tables:
       - name: raw_customers
         description: One record per person who has purchased one or more items
+        freshness:
+          warn_after: {count: "{{ 1 if modules.datetime.datetime.now().weekday() in [5,6] else 500 }}", period: day}
       - name: raw_orders
         description: One record per order (consisting of one or more order items)
         loaded_at_field: ordered_at
       - name: raw_items
         description: Items included in an order
+        freshness:
+          warn_after: {count: "{{ 500 if (run_started_at.strftime('%Y-%m-%d') in var('holidays') or run_started_at.strftime('w') in [0,6]) else 1 }}", period: day}
       - name: raw_stores
         loaded_at_field: opened_at
       - name: raw_products
