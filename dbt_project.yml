@@ -27,6 +27,11 @@ vars:
 seeds:
   jaffle_shop:
     +schema: raw
+    +enabled: false
+    admin:
+      +schema: raw_admin
+      +enabled: true
+      +delimiter: "|"
 
 models:
   jaffle_shop:

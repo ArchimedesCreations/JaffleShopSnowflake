@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: evaluator
-    schema: raw
+    schema: raw_admin
     description: product evaluator raw tables
     tables:
-      - name: evaluator_rules
+      - name: evaluator_rules_pipe
         description: Metadata for the evaluator rules
