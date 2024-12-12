@@ -1,0 +1,8 @@
+version: 2
+
+seeds:
+  - name: project_evaluator_metadata
+    config:
+      enabled: true
+      delimiter: "|"
+      schema: "{{ target.schema }}" 

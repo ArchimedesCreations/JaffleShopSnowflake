@@ -1,1 +1,0 @@
-select * from {{ref("fct_staging_dependent_on_staging")}}
