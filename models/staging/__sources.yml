@@ -7,10 +7,11 @@ sources:
     freshness:
       warn_after:
         count: 24
-        period: hour
+        period: hour 
     tables:
       - name: raw_customers
         description: One record per person who has purchased one or more items
+        tags: ["urgent"]
       - name: raw_orders
         description: One record per order (consisting of one or more order items)
         loaded_at_field: ordered_at

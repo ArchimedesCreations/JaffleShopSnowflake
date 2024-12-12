@@ -4,5 +4,7 @@ packages:
   - package: calogica/dbt_date
     version: 0.10.0
   - git: https://github.com/dbt-labs/dbt-audit-helper.git
-    revision: c0be07f84e61dd01517292a15a2c084af9c95f01
-sha1_hash: da0d5b1d5a48f6504805f6b1d5a0b2f9f233f34c
+    revision: 6499107b5960d7c6140a8a44345034e6eb7b336d
+  - package: dbt-labs/dbt_project_evaluator
+    version: 0.14.3
+sha1_hash: 7d3e495e75ce19b1c48b75cfc59064a140c4cc25

@@ -1,0 +1,5 @@
+selectors:
+  - name: priority
+    definition:
+      source: source
+    

@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: project_evaluator__report
+    description: "This model generates a single report across all of the evaluator rules. 
+      The results just show a sample of data. To see the complete set of results
+      query the model corresponding to the rule."
+    config:
+      materialized: table
+  - name: project_evaluator__report_view
+    description: "This model is a view over the report table."
+    config:
+      materialized: view    
