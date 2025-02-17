@@ -27,6 +27,8 @@ vars:
 seeds:
   jaffle_shop:
     +enabled: true
+  admin:
+    +enabled: true
 
 models:
   jaffle_shop:
