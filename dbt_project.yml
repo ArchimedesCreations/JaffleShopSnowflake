@@ -36,3 +36,6 @@ models:
       +materialized: view
     marts:
       +materialized: table
+
+flags:
+  partial_parse: false
