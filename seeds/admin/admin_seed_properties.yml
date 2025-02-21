@@ -5,4 +5,3 @@ seeds:
     config:
       enabled: true
       delimiter: "|"
-      schema: "{{ target.schema }}" 
