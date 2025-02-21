@@ -5,3 +5,4 @@ id,name,opened_at,tax_rate
 39b38c24-679d-4217-b676-a4a0e64c8477,San Francisco,2018-05-09T00:00:00,0.075
 09fdfbaf-3ec6-408d-93f4-1efc535d9938,New Orleans,2019-03-10T00:00:00,0.04
 da506490-1e2f-4fe8-8426-f1eee65af28a,Los Angeles,2019-09-13T00:00:00,0.08
+da506490-1e2f-4fe8-8426-f1eee65af28c,Los NoWhere,2025-02-17T00:00:00,0.08
