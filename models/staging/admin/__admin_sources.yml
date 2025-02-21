@@ -3,9 +3,6 @@ version: 2
 sources:
   - name: project_evaluator
     description: project evaluator raw tables
-    schema: raw
     tables:
       - name: project_evaluator_metadata
         description: Metadata for the project evaluator to enable reporting
-        config:
-          materialized: view    
