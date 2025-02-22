@@ -1,0 +1,10 @@
+# times pine documentation: https://docs.getdbt.com/docs/build/metricflow-time-spine#example-time-spine-tables
+# example using fiscal year: https://github.com/dbt-labs/jaffle-sl-template/blob/main/models/marts/_models.yml
+models:
+  - name: time_spine_day
+    time_spine:
+      standard_granularity_column: date_day # column for the standard grain of your table
+    columns:
+      - name: date_day
+        granularity: day # set granularity at column-level for standard_granularity_column
+

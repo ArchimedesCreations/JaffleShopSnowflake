@@ -26,10 +26,6 @@ vars:
 
 seeds:
   +schema: "{{ env_var('DBT_SCHEMA_SEED')}}"
-  jaffle_shop:
-    +enabled: true
-  admin:
-    +enabled: true
 
 models:
   jaffle_shop:
@@ -40,5 +36,3 @@ models:
       +materialized: table
       +schema: marts
 
-flags:
-  partial_parse: false
