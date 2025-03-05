@@ -1,7 +1,7 @@
 
 {% macro generate_alias_name(custom_alias_name=none, node=none) -%}
 
-    {%- if env_var('DBT_CLOUD_ENVIRONMENT_TYPE') == 'dev' and not(node.resource_type == 'seed') -%}
+    {%- if env_var('DBT_CLOUD_ENVIRONMENT_TYPE', 'CI') == 'dev' and not(node.resource_type == 'seed') -%}
 
         {%- if custom_alias_name -%}
 
