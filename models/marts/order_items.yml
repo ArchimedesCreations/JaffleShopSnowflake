@@ -1,7 +1,7 @@
 models:
   - name: order_items
     config:
-      groups: sales
+      group: sales
     columns:
       - name: order_item_id
         data_tests:
