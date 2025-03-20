@@ -13,7 +13,7 @@ models:
           - not_null
           - unique
           - relationships:
-              to: ref('order_item')
+              to: ref('order_items')
               field: order_id
       - name: customer_id
         description: The foreign key relating to the customer who placed the order.
