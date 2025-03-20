@@ -31,10 +31,10 @@
 -- This model dynamically generates markdown documentation for best practice evaluations.
 -- It evaluates multiple models to identify inconsistencies and outputs findings in a structured markdown format.
 
--- The view `stg_project_evaluator_metadata` points to the seed table which contains the information about the project evaluator best practices.
+-- The table `project_evaluator_metadata` is the seed table which contains the information about the project evaluator best practices.
 -- It is important to note that get_query_results_as_dict returns an array by column
-{% set results = dbt_utils.get_query_results_as_dict('select TYPE, NAME, URL, MODEL_NAME, COLUMN_NAME_LIST, DATA_TYPE_LIST, FINDINGS, RISK, BEST_PRACTICES 
-from ' ~ ref("stg_project_evaluator_metadata") ~ ' where enabled_flag = true order by TYPE, NAME' ) -%}
+{% set results = dbt_utils.get_query_results_as_dict('select TYPE, PRIORITY, NAME, URL, MODEL_NAME, COLUMN_NAME_LIST, DATA_TYPE_LIST, FINDINGS, RISK, BEST_PRACTICES 
+from ' ~ ref("project_evaluator_metadata") ~ ' where enabled_flag = true order by PRIORITY, TYPE, NAME' ) -%}
 
 -- Limit for the how many results to show in the sample results table for each best practice section
 {%- set show_x_results = 10 -%}
