@@ -1,9 +1,0 @@
-version: 2
-
-sources:
-  - name: project_evaluator
-    description: project evaluator raw tables
-    schema: "{{ env_var('DBT_SCHEMA_SEED') }}"
-    tables:
-      - name: project_evaluator_metadata
-        description: Metadata for the project evaluator to enable reporting

@@ -12,6 +12,9 @@ models:
         data_tests:
           - not_null
           - unique
+          - relationships:
+              to: ref('order_item')
+              field: order_id
       - name: customer_id
         description: The foreign key relating to the customer who placed the order.
         data_tests:
