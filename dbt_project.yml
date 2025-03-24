@@ -5,7 +5,8 @@ version: "3.0.0"
 require-dbt-version: ">=1.5.0"
 
 dbt-cloud:
-  project-id: 275557 # Put your project id here
+  project-id: 394586 # Put your project id here
+  account-host: "cloud.getdbt.com"
 
 profile: default # Put your profile here
 
