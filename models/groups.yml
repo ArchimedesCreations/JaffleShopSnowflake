@@ -1,0 +1,18 @@
+version: 2
+
+groups:
+  - name: sales
+    owner:
+      # Email is required to receive model-level notifications, additional properties are also allowed.
+      name: "Sales Team"
+      email: lewen-sales-aaaaptvstxwhasflidbqevdnwe@dbt-labs.slack.com
+
+  - name: procurement 
+    owner:
+      name: "Marketing team"
+      email: lewen-procurement-aaaaps5jj5rbicjthlie3sudce@dbt-labs.slack.com
+
+  - name: eds 
+    owner:
+      name: "EDS Team"
+      email: lewen-eds-aaaapucq22gobygsavtjenglo4@dbt-labs.slack.com

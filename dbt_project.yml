@@ -5,7 +5,8 @@ version: "3.0.0"
 require-dbt-version: ">=1.5.0"
 
 dbt-cloud:
-  project-id: 275557 # Put your project id here
+  project-id: 394586 # Put your project id here
+  account-host: "cloud.getdbt.com"
 
 profile: default # Put your profile here
 
@@ -25,12 +26,15 @@ vars:
   "dbt_date:time_zone": "America/Los_Angeles"
 
 seeds:
-  jaffle_shop:
-    +enabled: true
+  +schema: "{{ env_var('DBT_SCHEMA_SEED')}}"
 
 models:
   jaffle_shop:
     staging:
       +materialized: view
+      +schema: staging
+      +group: eds
     marts:
       +materialized: table
+      +schema: marts
+
