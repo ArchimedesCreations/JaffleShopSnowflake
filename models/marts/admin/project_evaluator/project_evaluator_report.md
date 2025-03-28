@@ -1,5 +1,5 @@
 ## **Summary of Evaluator Best Practices **  
-| **Sort** | **Type** | **Name** | **Number of Opportunities** |  
+| **Sort** | **Type** | **Name** | **Number of Opportunities**|  
 |:---:|:---:|:---:|:---:|  
 |00|Documentation|Documentation Coverage|1|  
 |01|Documentation|Undocumented Models|6|  
