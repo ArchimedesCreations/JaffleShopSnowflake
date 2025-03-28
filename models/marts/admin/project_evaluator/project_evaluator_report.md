@@ -1,4 +1,4 @@
-## **Summary of Evaluator Best Practices**  
+## **Summary of Evaluator Best Practices **  
 | **Sort** | **Type** | **Name** | **Number of Opportunities** |  
 |:---:|:---:|:---:|:---:|  
 |00|Documentation|Documentation Coverage|1|  
