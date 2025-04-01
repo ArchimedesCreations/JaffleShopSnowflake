@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: snowflake_aws_s3
+    database: lewen_dev
+    schema: external_raw
+    loader: S3
+        
+    tables:
+      - name: ext_f1_manufacturer
+        description: "External table of f1 manufacturer"
+        external:
+          location: "@lewen_dev.dbt_lewen.lewen_aws_stage"  # reference an existing external stage
+          file_format: ( type = 'CSV', field_delimiter = ',' )      # fully specified here, or reference an existing file format
+              
+        columns:
+          - name: Team
+            data_type: varchar
+          - name: Wins
+            data_type: int
+          - name: Championships
+            data_type: int
+          - name: Races
+            data_type: int
+          - name: Seasons
+            data_type: int
+

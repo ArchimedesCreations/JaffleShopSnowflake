@@ -7,3 +7,5 @@ packages:
     revision: main
   - package: dbt-labs/dbt_project_evaluator
     version: 1.0.0
+  - package: dbt-labs/dbt_external_tables
+    version: 0.11.1
