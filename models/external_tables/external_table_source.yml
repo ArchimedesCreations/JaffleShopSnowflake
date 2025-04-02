@@ -7,21 +7,21 @@ sources:
     loader: S3
         
     tables:
-      - name: ext_f1_manufacturer
-        description: "External table of f1 manufacturer"
+      - name: ext_f1_team
+        description: "External table of f1 team"
         external:
-          location: "@lewen_dev.dbt_lewen.lewen_aws_stage"  # reference an existing external stage
-          file_format: ( type = 'CSV', field_delimiter = ',' )      # fully specified here, or reference an existing file format
+          location: "@lewen_dev.dbt_lewen.lewen_aws_stage/formula1/team/"  # reference an existing external stage
+          file_format: ( type = 'CSV', field_delimiter = ',', field_optionally_enclosed_by = '"', skip_header = 1 )      # fully specified here, or reference an existing file format
               
         columns:
-          - name: Team
+          - name: c1
             data_type: varchar
-          - name: Wins
+          - name: c2
             data_type: int
-          - name: Championships
+          - name: c3
             data_type: int
-          - name: Races
+          - name: c4
             data_type: int
-          - name: Seasons
+          - name: c5
             data_type: int
 
