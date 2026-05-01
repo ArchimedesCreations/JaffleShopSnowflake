@@ -55,6 +55,9 @@ semantic_models:
       - name: product
         type: foreign
         expr: product_id
+      - name: customer
+        type: foreign
+        expr: customer_id
     dimensions:
       - name: ordered_at
         expr: ordered_at
@@ -73,15 +76,24 @@ semantic_models:
       - name: food_revenue
         description: The revenue generated for each order item. Revenue is calculated as a sum of revenue associated with each product in an order.
         agg: sum
-        expr: case when is_food_item is true then product_price else 0 end
+        expr: case when is_food_item = true then product_price else 0 end
       - name: drink_revenue
         description: The revenue generated for each order item. Revenue is calculated as a sum of revenue associated with each product in an order.
         agg: sum
-        expr: case when is_drink_item is true then product_price else 0 end
+        expr: case when is_drink_item = true then product_price else 0 end
       - name: median_revenue
         description: The median revenue generated for each order item.
         agg: median
         expr: product_price
+      - name: bad_order_total_sum
+        description: |
+          BAD MEASURE — triggers the fan trap.
+          Sums order_total at item grain. Because order_total is an order-level
+          value repeated on every row of order_items, SUM(order_total) counts
+          each order's total once per item instead of once per order.
+          A $30 order with 3 items produces SUM = $90, not $30.
+        expr: order_total
+        agg: sum
 
 metrics:
   # Simple metrics
@@ -117,7 +129,7 @@ metrics:
       measure: drink_revenue
 
   # Ratio Metrics
-  - name: food_revenue_pct
+  - name: order_items_food_revenue_pct
     description: The % of order revenue from food.
     label: Food Revenue %
     type: ratio

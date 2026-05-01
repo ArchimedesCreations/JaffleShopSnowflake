@@ -70,6 +70,14 @@ semantic_models:
       - name: lifetime_spend
         agg: sum
         description: Gross customer lifetime spend inclusive of taxes.
+      - name: bad_avg_order_value
+        description: |
+          BAD MEASURE — triggers the average-of-averages trap.
+          Computes each customer's average order value (spend / orders) and then
+          averages those per-customer averages with agg: average. Every customer
+          contributes equally regardless of how many orders they placed.
+        expr: lifetime_spend_pretax / count_lifetime_orders
+        agg: average
 
 metrics:
   - name: lifetime_spend_pretax

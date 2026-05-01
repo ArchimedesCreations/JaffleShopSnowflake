@@ -1,0 +1,105 @@
+# =============================================================================
+# AVERAGE OF AVERAGES TRAP — dbt Semantic Layer / MetricFlow
+# =============================================================================
+#
+# WHAT IS THE AVERAGE OF AVERAGES TRAP?
+# ----------------------------------------
+# When you compute an average per group and then average those group averages,
+# each group contributes equally to the result regardless of its size.
+# That is an UNWEIGHTED mean — almost always the wrong answer.
+#
+# SCENARIO: "What is the average order value across all locations?"
+#
+#   Location A (busy):  1,000 orders, AVG(order_total) = $12  → total $12,000
+#   Location B (quiet):    10 orders, AVG(order_total) = $25  → total    $250
+#
+#   Average of averages:        ($12 + $25) / 2          = $18.50  ❌
+#   True weighted average: ($12,000 + $250) / 1,010      = $12.13  ✅
+#
+# THE TRAP (naive SQL — WRONG)
+# -----------------------------
+#   SELECT AVG(location_avg_order_value)
+#   FROM (
+#       SELECT location_id, AVG(order_total) AS location_avg_order_value
+#       FROM orders
+#       GROUP BY location_id
+#   ) sub;
+#   → $18.50  ❌  (Location B pulls the mean up despite being tiny)
+#
+# HOW MetricFlow AVOIDS IT
+# -------------------------
+# A ratio metric computes SUM(numerator) / SUM(denominator) across ALL rows
+# at query time. Each individual order contributes to the numerator and
+# denominator independently — no pre-aggregation, no unweighted rollup.
+#
+#   MetricFlow: SUM(order_total) / COUNT(orders)
+#             = ($12,000 + $250) / (1,000 + 10)
+#             = $12.13  ✅
+#
+# The ratio type is the safe pattern for any "average X per Y" metric.
+# =============================================================================
+
+metrics:
+  - name: bad_avg_order_value
+    description: >
+      Triggers the average-of-averages trap. Computes each customer's average
+      order value (lifetime_spend_pretax / count_lifetime_orders) and then
+      averages those per-customer averages using agg: average. Every customer
+      contributes equally regardless of order volume.
+
+      Customer A: $200 spend, 20 orders → per-customer avg = $10
+      Customer B: $50 spend,   1 order  → per-customer avg = $50
+
+        bad_avg_order_value  = ($10 + $50) / 2    = $30.00  WRONG
+        avg_order_value      = ($200 + $50) / 21  = $11.90  CORRECT
+
+      The trap is invisible in per-customer views — it only surfaces when
+      rolling up to totals or comparing segments with different order volumes.
+    label: Bad Avg Order Value (Avg-of-Avgs Trap)
+    type: simple
+    type_params:
+      measure: bad_avg_order_value  # defined on customers semantic model
+
+  - name: avg_order_value
+    description: >
+      Average of Averages trap demo. Computes the true weighted average order
+      value as SUM(order_total) / COUNT(orders) using a ratio metric.
+
+      The trap: if you compute AVG(order_total) per location and then roll those
+      location-level averages up to an overall figure, each location contributes
+      equally regardless of order volume — producing an unweighted mean.
+
+      Location A (busy):  1,000 orders @ $12 avg
+      Location B (quiet):    10 orders @ $25 avg
+
+        Average of averages:  ($12 + $25) / 2         = $18.50  WRONG
+        True weighted avg: ($12,000 + $250) / 1,010   = $12.13  CORRECT
+
+      MetricFlow's ratio type always computes SUM(num) / SUM(denom) over the
+      raw rows — never averaging pre-aggregated group averages — so the result
+      is correctly weighted at every grouping level.
+    label: Average Order Value (Trap-Safe)
+    type: ratio
+    type_params:
+      numerator: order_total  # SUM(order_total) across all orders
+      denominator: orders     # COUNT of orders
+
+saved_queries:
+  - name: avg_of_avgs_demo
+    description: >
+      Demonstrates average-of-averages trap avoidance. Shows avg_order_value
+      (a ratio metric) alongside order_total and orders grouped by location.
+      Compare the ratio result to what you would get by averaging the
+      per-location averages in a BI tool — they will differ whenever locations
+      have unequal order volumes.
+    query_params:
+      metrics:
+        - avg_order_value  # ratio: SUM(order_total) / COUNT(orders) — correct
+        - order_total      # raw sum, for manual verification
+        - orders           # raw count, for manual verification
+      group_by:
+        - Entity('location')
+    exports:
+      - name: avg_of_avgs_demo
+        config:
+          export_as: table
