@@ -55,6 +55,9 @@ semantic_models:
       - name: product
         type: foreign
         expr: product_id
+      - name: customer
+        type: foreign
+        expr: customer_id
     dimensions:
       - name: ordered_at
         expr: ordered_at
@@ -82,6 +85,15 @@ semantic_models:
         description: The median revenue generated for each order item.
         agg: median
         expr: product_price
+      - name: bad_order_total_sum
+        description: |
+          BAD MEASURE — triggers the fan trap.
+          Sums order_total at item grain. Because order_total is an order-level
+          value repeated on every row of order_items, SUM(order_total) counts
+          each order's total once per item instead of once per order.
+          A $30 order with 3 items produces SUM = $90, not $30.
+        expr: order_total
+        agg: sum
 
 metrics:
   # Simple metrics

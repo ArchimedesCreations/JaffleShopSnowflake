@@ -44,6 +44,8 @@ joined as (
         order_items.*,
 
         orders.ordered_at,
+        orders.order_total,
+        orders.customer_id,
 
         products.product_name,
         products.product_price,

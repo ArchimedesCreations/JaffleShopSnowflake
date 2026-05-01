@@ -1,0 +1,151 @@
+# =============================================================================
+# FAN TRAP AVOIDANCE — dbt Semantic Layer / MetricFlow
+# =============================================================================
+#
+# WHAT IS A FAN TRAP?
+# -------------------
+# A fan trap occurs when you join tables at different grains before aggregating.
+# The "fan-out" from the one-to-many join causes measures from the higher grain
+# to be double (or triple) counted — once for each row on the many side.
+#
+# THE SCENARIO IN THIS PROJECT
+# -----------------------------
+# We want to answer: "For each customer, what was their total order value
+# AND their total item revenue?"
+#
+#   orders       → one row per ORDER  (order grain)
+#   order_items  → one row per ITEM   (item grain; multiple items per order)
+#
+# A customer's single $30 order containing 3 items looks like this after a
+# naive JOIN:
+#
+#   customer_id | order_id | order_total | product_price
+#   ------------|----------|-------------|---------------
+#   cust_1      | order_1  |         $30 |            $10
+#   cust_1      | order_1  |         $30 |            $10   ← order_total duped
+#   cust_1      | order_1  |         $30 |            $10   ← order_total duped
+#
+# THE FAN TRAP (naive SQL — WRONG)
+# ----------------------------------
+#   SELECT
+#       o.customer_id,
+#       SUM(o.order_total)    AS total_order_value,   -- ❌ $90 — inflated 3×!
+#       SUM(oi.product_price) AS total_item_revenue   -- ✅ $30 — correct
+#   FROM orders o
+#   JOIN order_items oi ON o.order_id = oi.order_id
+#   GROUP BY o.customer_id;
+#
+#   SUM(order_total) = $30 × 3 items = $90   ← WRONG, should be $30
+#
+# HOW MetricFlow PREVENTS THE FAN TRAP
+# -------------------------------------
+# MetricFlow NEVER aggregates across a join. It computes each measure
+# independently at its own grain, then joins the pre-aggregated results:
+#
+#   Step 1 — aggregate order_total at order grain, then roll up to customer:
+#     SELECT customer_id, SUM(order_total) AS order_total   -- ✅ $30
+#     FROM orders
+#     GROUP BY customer_id
+#
+#   Step 2 — aggregate revenue at item grain, then roll up to customer:
+#     SELECT oi.order_id, SUM(oi.product_price) AS revenue  -- ✅ $30
+#     FROM order_items oi
+#     JOIN orders o ON oi.order_id = o.order_id
+#     GROUP BY o.customer_id
+#
+#   Step 3 — join the two PRE-AGGREGATED results:
+#     SELECT
+#         order_agg.customer_id,
+#         order_agg.order_total,      -- ✅ $30 — correct
+#         item_agg.revenue            -- ✅ $30 — correct
+#     FROM order_agg
+#     JOIN item_agg USING (customer_id)
+#
+# The entity model enforces this safe join strategy automatically.
+# =============================================================================
+
+metrics:
+  - name: bad_order_total
+    description: >
+      Triggers the fan trap. Sums order_total from the order_item semantic
+      model (item grain), where order_total is an order-level column repeated
+      once per item row.
+
+      For a $30 order containing 3 items:
+        bad_order_total = $90  WRONG (inflated 3×)
+        order_total     = $30  CORRECT (sourced from the orders semantic model)
+
+      The inflation compounds with order size — orders with more items are
+      penalised more. This is the defining symptom of a fan trap.
+    label: Bad Order Total (Fan Trap)
+    type: simple
+    type_params:
+      measure: bad_order_total_sum  # defined on order_item semantic model (item grain)
+
+  - name: tax_collected
+    description: >
+      Fan-trap demo metric. Computes order_total (ORDER grain, from the 'orders'
+      semantic model) minus revenue (ITEM grain, from the 'order_item' semantic
+      model). The difference equals the tax portion of each order.
+
+      Why this breaks in naive SQL:
+        JOIN orders o ON ... JOIN order_items oi ON o.order_id = oi.order_id
+        → SUM(o.order_total) is inflated N× (once per item)
+        → SUM(o.order_total) - SUM(oi.product_price) = wrong answer
+
+      Why MetricFlow gets it right:
+        Step 1: SELECT customer_id, SUM(order_total) FROM orders GROUP BY 1
+        Step 2: SELECT customer_id, SUM(product_price) FROM order_items GROUP BY 1
+        Step 3: JOIN the two pre-aggregated results, then subtract
+        → correct tax figure, no inflation
+    label: Tax Collected (Fan Trap Demo)
+    type: derived
+    type_params:
+      expr: order_total - revenue
+      metrics:
+        - order_total  # orders semantic model — ORDER grain
+        - revenue      # order_item semantic model — ITEM grain
+
+saved_queries:
+  - name: fan_trap_demo
+    description: >
+      Demonstrates fan-trap avoidance in the dbt Semantic Layer. This query
+      combines order_total (sourced from the 'orders' semantic model at ORDER
+      grain) and revenue (sourced from the 'order_item' semantic model at ITEM
+      grain), both grouped by customer.
+
+      In raw SQL, joining orders to order_items before aggregating inflates
+      SUM(order_total) by the number of items per order. MetricFlow avoids this
+      by computing each metric in an independent sub-query at its correct grain,
+      then joining the pre-aggregated results — so no measure is ever counted
+      more than once.
+
+      Join path MetricFlow resolves automatically via the entity graph:
+        order_item (primary) → order_id (foreign) → orders (primary)
+                                                   → customer (foreign) → customers (primary)
+    query_params:
+      metrics:
+        # ── order grain ──────────────────────────────────────────────────────
+        # Defined on the 'orders' semantic model (one row per order).
+        # MetricFlow: SELECT customer_id, SUM(order_total) FROM orders GROUP BY 1
+        - order_total
+
+        # ── item grain ───────────────────────────────────────────────────────
+        # Defined on the 'order_item' semantic model (one row per order item).
+        # MetricFlow traverses: order_item → order_id → orders → customer
+        # then: SELECT customer_id, SUM(product_price) FROM order_items ... GROUP BY 1
+        - revenue
+
+        # ── order count (order grain) ─────────────────────────────────────
+        # Included to make the inflation concrete: in the fan-trap SQL above,
+        # you would also need to use COUNT(DISTINCT order_id) here to get the
+        # right answer. MetricFlow gives the correct count automatically.
+        - orders
+
+      group_by:
+        - Entity('customer')
+
+    exports:
+      - name: fan_trap_demo
+        config:
+          export_as: table
