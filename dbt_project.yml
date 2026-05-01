@@ -10,11 +10,6 @@ dbt-cloud:
 
 profile: jaffle_shop
 
-flags:
-    warn_error_options:
-      silence:
-        - "Deprecations"
-
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["data-tests"]
