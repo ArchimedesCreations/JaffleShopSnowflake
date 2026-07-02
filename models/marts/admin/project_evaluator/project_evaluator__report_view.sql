@@ -1,1 +1,0 @@
-select * from {{ ref("project_evaluator__report") }}
