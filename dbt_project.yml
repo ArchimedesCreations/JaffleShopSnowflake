@@ -31,7 +31,9 @@ vars:
   "dbt_date:time_zone": "America/Los_Angeles"
 
 seeds:
-  +schema: "RAW"
+  jaffle_shop:
+    +schema: "RAW"
+    +enabled: false
 
 models:
   jaffle_shop:
