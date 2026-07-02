@@ -1,0 +1,17 @@
+models:
+  - name: order_fulfillment_incremental
+    description: Incremental test model that consumes `order_fulfillment` at the order grain.
+    columns:
+      - name: order_id
+        description: The unique key of the incremental fulfillment model.
+        data_tests:
+          - not_null
+          - unique
+      - name: ordered_at
+        description: The date the order was placed.
+      - name: delivered_at
+        description: The derived delivery date for the order.
+      - name: days_to_fulfill
+        description: Number of days between order placement and delivery.
+      - name: is_late
+        description: Indicates whether delivery took more than 3 days.
