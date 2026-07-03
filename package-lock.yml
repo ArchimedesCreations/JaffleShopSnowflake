@@ -8,7 +8,4 @@ packages:
   - name: audit_helper
     package: dbt-labs/audit_helper
     version: 0.13.0
-  - name: dbt_project_evaluator
-    package: dbt-labs/dbt_project_evaluator
-    version: 1.2.3
-sha1_hash: 75e196bbdf675102ec6074e21090f3b471225add
+sha1_hash: 077372266a83e24e67751ba61ef0de9a167fdab2
