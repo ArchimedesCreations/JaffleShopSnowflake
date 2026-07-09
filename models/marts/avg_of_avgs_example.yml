@@ -39,51 +39,6 @@
 # The ratio type is the safe pattern for any "average X per Y" metric.
 # =============================================================================
 
-metrics:
-  - name: bad_avg_order_value
-    description: >
-      Triggers the average-of-averages trap. Computes each customer's average
-      order value (lifetime_spend_pretax / count_lifetime_orders) and then
-      averages those per-customer averages using agg: average. Every customer
-      contributes equally regardless of order volume.
-
-      Customer A: $200 spend, 20 orders → per-customer avg = $10
-      Customer B: $50 spend,   1 order  → per-customer avg = $50
-
-        bad_avg_order_value  = ($10 + $50) / 2    = $30.00  WRONG
-        avg_order_value      = ($200 + $50) / 21  = $11.90  CORRECT
-
-      The trap is invisible in per-customer views — it only surfaces when
-      rolling up to totals or comparing segments with different order volumes.
-    label: Bad Avg Order Value (Avg-of-Avgs Trap)
-    type: simple
-    type_params:
-      measure: bad_avg_order_value  # defined on customers semantic model
-
-  - name: avg_order_value
-    description: >
-      Average of Averages trap demo. Computes the true weighted average order
-      value as SUM(order_total) / COUNT(orders) using a ratio metric.
-
-      The trap: if you compute AVG(order_total) per location and then roll those
-      location-level averages up to an overall figure, each location contributes
-      equally regardless of order volume — producing an unweighted mean.
-
-      Location A (busy):  1,000 orders @ $12 avg
-      Location B (quiet):    10 orders @ $25 avg
-
-        Average of averages:  ($12 + $25) / 2         = $18.50  WRONG
-        True weighted avg: ($12,000 + $250) / 1,010   = $12.13  CORRECT
-
-      MetricFlow's ratio type always computes SUM(num) / SUM(denom) over the
-      raw rows — never averaging pre-aggregated group averages — so the result
-      is correctly weighted at every grouping level.
-    label: Average Order Value (Trap-Safe)
-    type: ratio
-    type_params:
-      numerator: order_total  # SUM(order_total) across all orders
-      denominator: orders     # COUNT of orders
-
 saved_queries:
   - name: avg_of_avgs_demo
     description: >

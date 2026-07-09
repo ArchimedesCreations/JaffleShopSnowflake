@@ -11,18 +11,19 @@ dbt-cloud:
 profile: jaffle_shop
 
 flags:
-    warn_error_options:
-      silence:
-        - "Deprecations"
+  warn_error_options:
+    silence:
+      - "Deprecations"
 
+  require_generic_test_arguments_property: true
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["data-tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-
 target-path: "target"
+
 clean-targets:
   - "target"
   - "dbt_packages"
@@ -44,4 +45,3 @@ models:
     marts:
       +materialized: table
       +schema: marts
-

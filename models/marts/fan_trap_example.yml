@@ -65,23 +65,6 @@
 # =============================================================================
 
 metrics:
-  - name: bad_order_total
-    description: >
-      Triggers the fan trap. Sums order_total from the order_item semantic
-      model (item grain), where order_total is an order-level column repeated
-      once per item row.
-
-      For a $30 order containing 3 items:
-        bad_order_total = $90  WRONG (inflated 3×)
-        order_total     = $30  CORRECT (sourced from the orders semantic model)
-
-      The inflation compounds with order size — orders with more items are
-      penalised more. This is the defining symptom of a fan trap.
-    label: Bad Order Total (Fan Trap)
-    type: simple
-    type_params:
-      measure: bad_order_total_sum  # defined on order_item semantic model (item grain)
-
   - name: tax_collected
     description: >
       Fan-trap demo metric. Computes order_total (ORDER grain, from the 'orders'
@@ -100,12 +83,10 @@ metrics:
         → correct tax figure, no inflation
     label: Tax Collected (Fan Trap Demo)
     type: derived
-    type_params:
-      expr: order_total - revenue
-      metrics:
-        - order_total  # orders semantic model — ORDER grain
-        - revenue      # order_item semantic model — ITEM grain
-
+    expr: order_total - revenue
+    input_metrics:
+      - name: order_total
+      - name: revenue
 saved_queries:
   - name: fan_trap_demo
     description: >
