@@ -4,14 +4,13 @@ models:
 
     semantic_model:
       enabled: true
+    agg_time_dimension: ordered_at
+    primary_entity: fulfillment
     columns:
       - name: order_id
         entity:
-          type: primary
-          name: fulfillment
-      - name: order_id
-        entity:
           type: foreign
+          name: order_id
       - name: ordered_at
         dimension:
           type: time
