@@ -1,41 +1,29 @@
 models:
   - name: order_fulfillment
-    description: Order fulfillment data, containing delivery timing and lateness at the order grain. One row per order.
+    description: "Order fulfillment data, containing delivery timing and lateness at the order grain. One row per order. Order fulfillment fact table. Joins to the orders semantic model via the order_id entity.\nUse this model to query fulfillment metrics alongside order dimensions (e.g. ordered_at, is_food_order).\n"
 
-semantic_models:
-  - name: order_fulfillment
-    description: |
-      Order fulfillment fact table. Joins to the orders semantic model via the order_id entity.
-      Use this model to query fulfillment metrics alongside order dimensions (e.g. ordered_at, is_food_order).
-    model: ref('order_fulfillment')
-    entities:
-      - name: fulfillment
-        type: primary
-        expr: order_id
+    semantic_model:
+      enabled: true
+    columns:
       - name: order_id
-        type: foreign
-        expr: order_id
-    dimensions:
+        entity:
+          type: primary
+          name: fulfillment
+      - name: order_id
+        entity:
+          type: foreign
       - name: ordered_at
-        type: time
-        type_params:
-          time_granularity: day
-        expr: ordered_at
+        dimension:
+          type: time
+        granularity: day
       - name: days_to_fulfill
-        type: categorical
-        description: Number of days between order placement and delivery.
-        expr: days_to_fulfill
-    measures:
+        dimension:
+          type: categorical
+    metrics:
       - name: late_delivery_count
         description: Count of orders where delivery was late.
+        label: Late Delivery Count
+        type: simple
         agg: sum
-        expr: is_late
         agg_time_dimension: ordered_at
-
-metrics:
-  - name: late_delivery_count
-    description: Count of orders where delivery was late.
-    label: Late Delivery Count
-    type: simple
-    type_params:
-      measure: late_delivery_count
+        expr: is_late
